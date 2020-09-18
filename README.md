@@ -1,2 +1,2 @@
 # burgertime
-Burgertime iteration for rapid prototyping
+Updated BurgerTime for Rapid Prototyping.
