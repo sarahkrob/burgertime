@@ -40,11 +40,13 @@
     {
         this.load.image('background', 'assets/background.png');
         this.load.image('ground', 'assets/platform.png');
-        this.load.image('ladder', 'assets/ladder.png')
+        this.load.image('ladder', 'assets/ladder.png');
+        this.load.image('player', 'assets/player.png');
     }
 
     var platforms;
     var ladders;
+    var player;
 
     function buildplatforms () {
         platforms.create(400, 868, 'ground').setScale(2).refreshBody();
@@ -56,10 +58,10 @@
     }
 
     function buildladders () {
-        platforms.create(525, 800, 'ladder');
-        platforms.create(75, 600, 'ladder');
-        platforms.create(525, 400, 'ladder');
-        platforms.create(75, 200, 'ladder');
+        ladders.create(525, 800, 'ladder');
+        ladders.create(75, 600, 'ladder');
+        ladders.create(525, 400, 'ladder');
+        ladders.create(75, 200, 'ladder');
     }
 
     function create ()
@@ -70,10 +72,43 @@
         buildplatforms();
         ladders = this.physics.add.staticGroup();
         buildladders();
+        player = this.physics.add.image(400, 800, 'player');
+        player.setBounce(0.0);
+        player.setCollideWorldBounds(true);
+
+        //collisions
+        this.physics.add.collider(player, platforms);
+        this.physics.add.overlap(player, ladders, climbladder, null, this);
+
+        cursors = this.input.keyboard.createCursorKeys();
+    }
+
+    function climbladder () {
+        if (cursors.up.isDown) {
+            player.setVelocityY(-160);
+        }
+        else if (cursors.down.isDown) {
+            player.setVelocityY(160);
+        }
+        else {
+            player.setVelocityY(0);
+        }
     }
 
     function update ()
     {
+        if (cursors.left.isDown)
+        {
+            player.setVelocityX(-160);
+        }
+        else if (cursors.right.isDown)
+        {
+            player.setVelocityX(160);
+        }
+        else
+        {
+            player.setVelocityX(0);
+        }
     }
 
 </script>
