@@ -38,24 +38,38 @@
 
     function preload ()
     {
-        this.load.image('sky', 'assets/sky.png');
+        this.load.image('background', 'assets/background.png');
         this.load.image('ground', 'assets/platform.png');
+        this.load.image('ladder', 'assets/ladder.png')
     }
 
     var platforms;
+    var ladders;
 
-    function create ()
-    {
-        this.add.image(400, 300, 'sky');
-
-        platforms = this.physics.add.staticGroup();
-
+    function buildplatforms () {
         platforms.create(400, 868, 'ground').setScale(2).refreshBody();
 
         platforms.create(300, 700, 'ground');
         platforms.create(300, 500, 'ground');
         platforms.create(300, 300, 'ground');
         platforms.create(300, 100, 'ground');
+    }
+
+    function buildladders () {
+        platforms.create(525, 800, 'ladder');
+        platforms.create(75, 600, 'ladder');
+        platforms.create(525, 400, 'ladder');
+        platforms.create(75, 200, 'ladder');
+    }
+
+    function create ()
+    {
+        this.add.image(300, 450, 'background');
+
+        platforms = this.physics.add.staticGroup();
+        buildplatforms();
+        ladders = this.physics.add.staticGroup();
+        buildladders();
     }
 
     function update ()
