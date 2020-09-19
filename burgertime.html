@@ -22,7 +22,7 @@
             default: 'arcade',
             arcade: {
                 gravity: { y: 300 },
-                debug: false
+                debug: true
             }
         },
         scene: {
@@ -47,6 +47,8 @@
     var platforms;
     var ladders;
     var player;
+    var helpmessage;
+    var onladder = false;
 
     function buildplatforms () {
         platforms.create(400, 868, 'ground').setScale(2).refreshBody();
@@ -59,8 +61,12 @@
 
     function buildladders () {
         ladders.create(525, 800, 'ladder');
+        ladders.create(75, 800, 'ladder');
+        ladders.create(525, 600, 'ladder');
         ladders.create(75, 600, 'ladder');
         ladders.create(525, 400, 'ladder');
+        ladders.create(75, 400, 'ladder');
+        ladders.create(525, 200, 'ladder');
         ladders.create(75, 200, 'ladder');
     }
 
@@ -81,9 +87,18 @@
         this.physics.add.overlap(player, ladders, climbladder, null, this);
 
         cursors = this.input.keyboard.createCursorKeys();
+
+        //debug text
+        helpText = this.add.text(16, 16, gethelpmessage(), {
+            fontSize: '18px',
+            padding: { x: 10, y: 5 },
+            backgroundColor: '#000000',
+            fill: '#ffffff'
+        });
     }
 
-    function climbladder () {
+    function climbladder (player, ladder) {
+        onladder = true;
         if (cursors.up.isDown) {
             player.setVelocityY(-160);
         }
@@ -92,6 +107,7 @@
         }
         else {
             player.setVelocityY(0);
+            player.setAccelerationY(0);
         }
     }
 
@@ -109,6 +125,13 @@
         {
             player.setVelocityX(0);
         }
+    }
+
+    function sethelpmessage(message) {
+        helpmessage = message;
+    }
+    function gethelpmessage() {
+        return 'DEBUG: ' + onladder;
     }
 
 </script>
