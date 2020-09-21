@@ -40,10 +40,12 @@
         this.load.image('ground', 'assets/platform.png');
         this.load.image('ladder', 'assets/ladder.png');
         this.load.image('player', 'assets/player.png');
+        this.load.image('enemy', 'assets/enemy.png');
     }
 
     var ground;
     var platforms;
+    var enemies;
     var ladders;
     var player;
     var helpmessage;
@@ -77,6 +79,12 @@
         buildplatforms();
         ladders = this.physics.add.staticGroup();
         buildladders();
+
+        //enemy setup
+        enemies = this.physics.add.group();
+        enemies.create(200, 800, 'enemy');
+
+        //player setup
         player = this.physics.add.image(400, 800, 'player');
         player.setBounce(0.0);
         player.setCollideWorldBounds(true);
@@ -85,6 +93,10 @@
         this.physics.add.collider(player, ground);
         this.physics.add.collider(player, platforms, null, checkUp);
         this.physics.add.overlap(player, ladders, checkoverlap);
+        this.physics.add.overlap(player, enemies);
+        this.physics.add.collider(enemies, ground);
+        this.physics.add.collider(enemies, platforms, null, checkUpEnemy);
+        this.physics.add.overlap(enemies, ladders);
         //this.physics.add.overlap(player, ladders, climbladder, null, this);
 
         cursors = this.input.keyboard.createCursorKeys();
@@ -102,8 +114,21 @@
         onladder = true;
     }
 
+    function checkEnemyOverlap(enemy) {
+        enemy.onladder = true;
+    }
+
     function checkUp() {
         if (onladder == true && (player.body.velocity.y < 0 || player.body.velocity.y > 0 )) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function checkUpEnemy(enemy) {
+        if (enemy.onladder == true && (enemy.body.velocity.y < 0 || enemy.body.velocity.y > 0 )) {
             return false;
         }
         else {
@@ -134,10 +159,53 @@
     //     }
     // }
 
+    function moveEnemies() {
+        enemies.children.each(function(enemy) {
+            //has not yet started moving
+            console.log("PLAYER: " + player.body.bottom + " ENEMY: " + enemy.body.bottom);
+            if (enemy.body.velocity.x == 0 && enemy.onladder == false) {
+                if (player.x < enemy.x) {
+                    enemy.body.velocity.x = -50;
+                }
+                else if (player.x > enemy.x) {
+                    enemy.body.velocity.x = 50;
+                }
+            }
+            //only change directions if on the same platform, otherwise keep moving
+            else if ((player.body.bottom >= enemy.body.bottom - 5) && (player.body.bottom <= enemy.body.bottom + 20)) {
+                if (player.x < enemy.x && enemy.body.velocity.x >= 0) {
+                    enemy.body.velocity.x = -50;
+                }
+                else if (player.x > enemy.x && enemy.body.velocity.x <= 0) {
+                    enemy.body.velocity.x = 50;
+                }
+
+            }
+            //player on new level...
+            else {
+                //just go straight up or down
+                if (enemy.onladder == true) {
+                    enemy.body.setVelocityX(0);
+                    if (player.y < enemy.y) {
+                        enemy.body.velocity.y = -50;
+                    }
+                    else if (player.y > enemy.y) {
+                        enemy.body.velocity.y = 50;
+                    }
+                }
+            }
+        }, this);
+    }
+
     function update ()
     {
         onladder = false;
+        enemies.children.each(function(enemy) {
+            enemy.onladder = false;
+            this.physics.overlap(enemy, ladders, checkEnemyOverlap);
+        }, this);
         this.physics.overlap(player, ladders, checkoverlap);
+        moveEnemies();
         if (cursors.left.isDown)
         {
             player.setVelocityX(-160);
