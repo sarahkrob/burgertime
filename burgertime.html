@@ -1,6 +1,6 @@
-<!doctype html> 
-<html lang="en"> 
-<head> 
+<!doctype html>
+<html lang="en">
+<head>
     <meta charset="UTF-8" />
     <title>Super Burger Time</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
@@ -58,6 +58,7 @@
     var helpmessage;
     var onladder;
     var bodyparts;
+    var onBodypart;
 
     function buildplatforms () {
         //platforms.create(660, 620, 'platform');
@@ -113,6 +114,7 @@
         this.physics.add.collider(player, ground);
         this.physics.add.collider(player, platforms, null, checkUp);
         this.physics.add.overlap(player, ladders, checkoverlap);
+        this.physics.add.overlap(player, bodyparts, checkPartOverlap);
         this.physics.add.overlap(player, enemies);
         this.physics.add.collider(enemies, ground);
         this.physics.add.collider(enemies, platforms, null, checkUpEnemy);
@@ -134,6 +136,10 @@
 
     function checkoverlap() {
         onladder = true;
+    }
+
+    function checkPartOverlap(){
+        player.onBodypart = true;
     }
 
     function checkEnemyOverlap(enemy) {
@@ -222,6 +228,7 @@
     function update ()
     {
         onladder = false;
+        onBodypart = false;
         enemies.children.each(function(enemy) {
             enemy.onladder = false;
             this.physics.overlap(enemy, ladders, checkEnemyOverlap);
@@ -242,7 +249,7 @@
                 player.setVelocityY(-160);
             }
         }
-        else if (cursors.down.isDown) 
+        else if (cursors.down.isDown)
         {
             if (onladder == true) {
                 player.setVelocityY(160);
