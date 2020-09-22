@@ -21,8 +21,8 @@
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 300 },
-                debug: true
+                gravity: { y: 600 },
+                debug: false
             }
         },
         scene: {
@@ -40,8 +40,8 @@
         this.load.image('ground', 'assets/platform.png');
         this.load.image('platform', 'assets/1st playable/soloplatform.png');
         this.load.image('ladder', 'assets/1st playable/ladders.png');
-        this.load.image('player', 'assets/player.png');
-        this.load.image('enemy', 'assets/wolf.png');
+        this.load.image('player', 'assets/player.png?v=3');
+        this.load.image('enemy', 'assets/wolf.png?v=3');
         this.load.image('vat', 'assets/1st playable/vat.png');
         this.load.image('head', 'assets/body/head.png');
         this.load.image('arms', 'assets/body/arms.png');
@@ -55,7 +55,6 @@
     var enemies;
     var ladders;
     var player;
-    var helpmessage;
     var onladder;
     var bodyparts;
     var onBodypart;
@@ -79,10 +78,10 @@
     }
 
     function buildbody () {
-        bodyparts.create(630, 605, 'legs');
-        bodyparts.create(630, 445, 'torso');
-        bodyparts.create(630, 285, 'arms');
-        bodyparts.create(630, 125, 'head');
+        bodyparts.create(630, 595, 'legs');
+        bodyparts.create(630, 435, 'torso');
+        bodyparts.create(630, 275, 'arms');
+        bodyparts.create(630, 115, 'head');
     }
 
     function create ()
@@ -124,14 +123,6 @@
         //this.physics.add.overlap(player, ladders, climbladder, null, this);
 
         cursors = this.input.keyboard.createCursorKeys();
-
-        //debug text
-        helpText = this.add.text(16, 16, gethelpmessage(), {
-            fontSize: '18px',
-            padding: { x: 10, y: 5 },
-            backgroundColor: '#000000',
-            fill: '#ffffff'
-        });
     }
 
     function checkoverlap() {
@@ -263,13 +254,6 @@
                 player.setVelocityY(0);
             }
         }
-    }
-
-    function sethelpmessage(message) {
-        helpmessage = message;
-    }
-    function gethelpmessage() {
-        return 'DEBUG: ' + onladder;
     }
 
 </script>
