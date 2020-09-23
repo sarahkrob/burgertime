@@ -58,6 +58,7 @@
     var onladder;
     var bodyparts;
     var onBodypart;
+    var timer;
 
     function buildplatforms () {
         //platforms.create(660, 620, 'platform');
@@ -78,10 +79,10 @@
     }
 
     function buildbody () {
-        bodyparts.create(630, 595, 'legs');
-        bodyparts.create(630, 435, 'torso');
-        bodyparts.create(630, 275, 'arms');
-        bodyparts.create(630, 115, 'head');
+        bodyparts.create(630, 595, 'legs').name = 'legs';
+        bodyparts.create(630, 435, 'torso').name = 'torso';
+        bodyparts.create(630, 275, 'arms').name = 'arms';
+        bodyparts.create(630, 115, 'head').name = 'head';
     }
 
     function create ()
@@ -101,6 +102,7 @@
         buildbody();
 
         //enemy setup
+        //enemies will contain variables: steppedOn, falling
         enemies = this.physics.add.group();
         enemies.create(500, 550, 'enemy');
 
@@ -120,7 +122,7 @@
         this.physics.add.overlap(enemies, ladders);
         this.physics.add.collider(bodyparts, platforms, null, isFalling);
         this.physics.add.collider(bodyparts, ground);
-        //this.physics.add.overlap(player, ladders, climbladder, null, this);
+        this.physics.add.overlap(bodyparts, bodyparts, partsOverlap);
 
         cursors = this.input.keyboard.createCursorKeys();
     }
@@ -130,13 +132,12 @@
     }
 
     function checkPartOverlap(player, part){
-        console.log("true");
         onBodypart = true;
         part.steppedOn = true;
     }
 
     function isFalling(part){
-        if(onBodypart && part.steppedOn){
+        if(part.steppedOn){
             return false;
         }
         else{
@@ -146,6 +147,19 @@
 
     function checkEnemyOverlap(enemy) {
         enemy.onladder = true;
+    }
+
+    function partsOverlap(part1, part2) {
+        if (part1.falling && !part1.hasOverlapped && !part2.hasOverlapped) {
+            console.log(part1.name + " fallen on " + part2.name);
+            part2.steppedOn = true;
+            part2.squished = true;
+            part1.steppedOn = false;
+            part1.squished = false;
+            part1.hasOverlapped = part2.hasOverlapped = true;
+        }
+        // console.log(part1.name + " falling: " + part1.falling);
+        // console.log(part2.name + " falling: " + part2.falling);
     }
 
     function checkUp() {
@@ -167,44 +181,21 @@
     }
 
     function moveBodyParts(){
-        // if (onBodypart == true){
-        //     return true;
-        // }
-        // else {
-        //     return false;
-        // }
-        if (onBodypart) {
-            bodyparts.children.each(function(part) {
-                if (part.steppedOn) {
-                    part.setVelocityY(20);
-                }
-            }, this);
-        }
+        bodyparts.children.each(function(part) {
+            if (part.steppedOn) {
+                console.log(part.name + " STEPPED ON");
+                part.setVelocityY(50);
+            }
+            if (part.body.velocity.y > 0) {
+                part.falling = true;
+            }
+            else {
+                part.falling = false;
+            }
+            //console.log(part.falling);
+        }, this);
     }
-
-    // function checkladder() {
-    //     onladder = false;
-    //     this.ladders.children.iterate(function(child) {
-    //         if (!child.body.touching.none) {
-    //             console.log("on ladder")
-    //             onladder = true;
-    //         }
-    //      }, this);
-    // }
-
-    // function climbladder (player, ladder) {
-    //     if (cursors.up.isDown) {
-    //         player.setVelocityY(-160);
-    //     }
-    //     else if (cursors.down.isDown) {
-    //         player.setVelocityY(160);
-    //     }
-    //     else {
-    //         player.setVelocityY(0);
-    //         player.setAccelerationY(0);
-    //     }
-    // }
-
+    
     function moveEnemies() {
         enemies.children.each(function(enemy) {
             //has not yet started moving
@@ -246,16 +237,23 @@
     {
         onladder = false;
         onBodypart = false;
+        //anything needing to be done to body parts goes here
         bodyparts.children.each(function(part) {
-            part.steppedOn = false;
+            if (part.squished != undefined && part.squished == false)
+                part.steppedOn = false;
         }, this);
+        //anything needing to be done to enemies goes here
         enemies.children.each(function(enemy) {
             enemy.onladder = false;
             this.physics.overlap(enemy, ladders, checkEnemyOverlap);
         }, this);
         this.physics.overlap(player, ladders, checkoverlap);
         this.physics.overlap(player, bodyparts, checkPartOverlap);
-        console.log(onBodypart);
+        if (!this.physics.overlap(bodyparts, bodyparts, partsOverlap)) {
+            bodyparts.children.each(function(part) {
+                part.hasOverlapped = false;
+            }, this);
+        }
         moveEnemies();
         moveBodyParts();
         if (cursors.left.isDown)
