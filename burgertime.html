@@ -57,6 +57,7 @@
     var enemies;
     var ladders;
     var player;
+    var isPlayerDead;
     var onladder;
     var bodyparts;
     var onBodypart;
@@ -82,8 +83,12 @@
         bodyparts.create(630, 115, 'head').name = 'head';
     }
 
+    function buildEnemies(){
+        enemies.create(500, 550, 'enemy');
+    }
     function create ()
     {
+
         this.add.image(640, 400, 'background');
         ground = this.physics.add.staticGroup();
         ground.create(660, 620, 'platform');
@@ -111,7 +116,8 @@
         //enemy setup
         //enemies will contain variables: dead, onladder
         enemies = this.physics.add.group();
-        enemies.create(500, 550, 'enemy');
+        buildEnemies();
+
 
         //player setup
         player = this.physics.add.image(800, 550, 'player');
@@ -132,7 +138,7 @@
         this.physics.add.collider(player, platforms, null, checkUp);
         this.physics.add.overlap(player, ladders, checkoverlap);
         this.physics.add.overlap(player, bodyparts, checkPartOverlap);
-        this.physics.add.overlap(player, enemies);
+        this.physics.add.overlap(player, enemies, null, checkPlayerDeath);
         this.physics.add.collider(enemies, ground, null, enemyFalling);
         this.physics.add.collider(enemies, platforms, null, checkUpEnemy);
         this.physics.add.overlap(enemies, ladders);
@@ -150,6 +156,12 @@
     function checkoverlap() {
         onladder = true;
     }
+
+    function checkPlayerDeath(){
+        isPlayerDead = true;
+    }
+
+
 
     function checkPartOverlap(player, part){
         onBodypart = true;
@@ -235,6 +247,17 @@
         }
     }
 
+
+
+    function resetGame(){
+        console.log("reset");
+        bodyparts.clear(true);
+        enemies.clear(true);
+
+        buildEnemies();
+        buildbody();
+    }
+
     function moveBodyParts(){
         bodyparts.children.each(function(part) {
             if (part.steppedOn) {
@@ -248,7 +271,7 @@
             }
         }, this);
     }
-    
+
     function moveEnemies() {
         enemies.children.each(function(enemy) {
             //has not yet started moving
@@ -293,6 +316,7 @@
     {
         onladder = false;
         onBodypart = false;
+        isPlayerDead = false;
         //anything needing to be done to body parts goes here
         bodyparts.children.each(function(part) {
             //don't reset steppedon right away if it just got crushed or it won't fall
@@ -311,6 +335,7 @@
         }, this);
         this.physics.overlap(player, ladders, checkoverlap);
         this.physics.overlap(player, bodyparts, checkPartOverlap);
+        this.physics.overlap(player, enemies, checkPlayerDeath);
         if (!this.physics.overlap(bodyparts, bodyparts, partsOverlap)) {
             //if nothing is overlapping reset all overlaps
             bodyparts.children.each(function(part) {
@@ -346,6 +371,9 @@
                 player.setAccelerationY(0);
                 player.setVelocityY(0);
             }
+        }
+        if(isPlayerDead){
+            resetGame();
         }
         //animations
         vatscreen.anims.play('bubble', true);
