@@ -193,8 +193,9 @@
         onladder = true;
     }
 
-    function checkPlayerDeath(){
-        isPlayerDead = true;
+    function checkPlayerDeath(player, enemy){
+        if (player.body.bottom == enemy.body.bottom)
+            isPlayerDead = true;
     }
 
 
