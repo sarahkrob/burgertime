@@ -40,14 +40,18 @@
         this.load.image('ground', 'assets/platform.png');
         this.load.image('platform', 'assets/1st playable/soloplatform.png');
         this.load.image('ladder', 'assets/DryRun/ladders.png');
-        this.load.image('player', 'assets/player.png?v=3');
-        this.load.image('enemy', 'assets/wolf.png?v=3');
+        this.load.image('player', 'assets/front.png');
+        this.load.image('enemy', 'assets/werewolf.png');
         this.load.image('head', 'assets/body/head.png');
         this.load.image('arms', 'assets/body/arms.png');
         this.load.image('torso', 'assets/body/torso.png');
         this.load.image('legs', 'assets/body/legs.png');
         //this.load.spritesheet('test', 'assets/luchador-win', {frameWidth: 280, frameHeight: 320});
         this.load.spritesheet('vat', 'assets/DryRun/vat.png', {frameWidth: 142, frameHeight: 179});
+        this.load.spritesheet('scientist-left', 'assets/scientist-walk left.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-right', 'assets/scientist-walk right.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-up', 'assets/scientist-walk up.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-down', 'assets/scientist-walk down.png', {frameWidth: 52, frameHeight: 110});
         this.load.image('vatliquid', 'assets/DryRun/liquid.png');
     }
 
@@ -56,7 +60,7 @@
     var vat;
     var enemies;
     var ladders;
-    var player;
+    var player = null;
     var isPlayerDead;
     var onladder;
     var bodyparts;
@@ -102,13 +106,7 @@
         buildladders();
         vat = this.physics.add.staticGroup();
         vat.create(630, 710, 'vatliquid');
-        vatscreen = this.physics.add.staticSprite(630, 710, 'vat');
-        this.anims.create({
-            key: 'bubble',
-            frames: this.anims.generateFrameNumbers('vat', {start: 0, end: 15}),
-            frameRate: 10,
-            repeat: -1
-        });
+
         //parts will contain variables: steppedOn, falling, hasOverlapped, squished (i.e. has been crushed by another part)
         bodyparts = this.physics.add.group();
         buildbody();
@@ -120,9 +118,47 @@
 
 
         //player setup
-        player = this.physics.add.image(800, 550, 'player');
+        player = this.physics.add.sprite(800, 550, 'player');
         player.setBounce(0.0);
         player.setCollideWorldBounds(true);
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('scientist-left', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('scientist-right', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('scientist-up', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('scientist-down', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'still',
+            frames: this.anims.generateFrameNumbers('scientist-down', {start: 0, end: 0}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        vatscreen = this.physics.add.staticSprite(630, 710, 'vat');
+        this.anims.create({
+            key: 'bubble',
+            frames: this.anims.generateFrameNumbers('vat', {start: 0, end: 15}),
+            frameRate: 10,
+            repeat: -1
+        });
 
         // sprite = this.physics.add.sprite(100, 100, 'test');
         // this.anims.create({
@@ -247,8 +283,6 @@
         }
     }
 
-
-
     function resetGame(){
         console.log("reset");
         bodyparts.clear(true);
@@ -347,21 +381,25 @@
         if (cursors.left.isDown)
         {
             player.setVelocityX(-160);
+            player.anims.play('left', true);
         }
         else if (cursors.right.isDown)
         {
             player.setVelocityX(160);
+            player.anims.play('right', true);
         }
         else if (cursors.up.isDown)
         {
             if (onladder == true) {
                 player.setVelocityY(-160);
+                player.anims.play('up', true);
             }
         }
         else if (cursors.down.isDown)
         {
             if (onladder == true) {
                 player.setVelocityY(160);
+                player.anims.play('down', true);
             }
         }
         else
@@ -371,6 +409,7 @@
                 player.setAccelerationY(0);
                 player.setVelocityY(0);
             }
+            player.anims.play('still', true);
         }
         if(isPlayerDead){
             resetGame();
