@@ -61,6 +61,7 @@
         this.load.spritesheet('scientist-up', 'assets/scientist-walk up.png', {frameWidth: 52, frameHeight: 110});
         this.load.spritesheet('scientist-down', 'assets/scientist-walk down.png', {frameWidth: 52, frameHeight: 110});
         this.load.image('vatliquid', 'assets/DryRun/liquid.png');
+        this.load.image('menu', 'assets/DryRun/menu.png');
     }
 
     var ground;
@@ -75,6 +76,7 @@
     var onBodypart;
     var vatscreens;
     var vatbottom;
+    var menu;
 
     function buildplatforms () {
         platforms.create(375, 510, 'platform5');
@@ -145,7 +147,6 @@
         enemies = this.physics.add.group();
         buildEnemies();
 
-
         //player setup
         player = this.physics.add.sprite(900, 550, 'player').setScale(.75);
         player.setBounce(0.0);
@@ -190,14 +191,8 @@
             repeat: -1
         });
 
-        // sprite = this.physics.add.sprite(100, 100, 'test');
-        // this.anims.create({
-        //     key: 'stand',
-        //     frames: this.anims.generateFrameNumbers('test', { start: 0, end: 11 }),
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
-        // sprite.setCollideWorldBounds(true);
+        menu = this.add.image(800, 450, 'menu');
+        menu.visible = true;
 
         //collisions
         this.physics.add.collider(player, ground);
@@ -217,6 +212,7 @@
         this.physics.add.collider(enemies, vatbottom);
 
         cursors = this.input.keyboard.createCursorKeys();
+        this.physics.pause();
     }
 
     function checkoverlap() {
@@ -450,6 +446,12 @@
             if (onladder == true) {
                 player.setVelocityY(160);
                 player.anims.play('down', true);
+            }
+        }
+        else if (cursors.space.isDown) {
+            if (menu.visible) {
+                this.physics.resume();
+                menu.visible = false;
             }
         }
         else
