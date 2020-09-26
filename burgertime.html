@@ -77,6 +77,11 @@
     var vatscreens;
     var vatbottom;
     var menu;
+    //counting lives
+    var lives;
+    var livestimer;
+    var gotHit;
+    var livesText;
 
     function buildplatforms () {
         platforms.create(375, 510, 'platform5');
@@ -194,6 +199,12 @@
         menu = this.add.image(800, 450, 'menu');
         menu.visible = true;
 
+        lives = 3;
+        livestimer = 0;
+        gotHit = false;
+        livesText = this.add.text(10, 10, 'LIVES: ' + lives, {fontSize: '35px', fill: '#FFF'});
+
+
         //collisions
         this.physics.add.collider(player, ground);
         this.physics.add.collider(player, platforms, null, checkUp);
@@ -221,7 +232,15 @@
 
     function checkPlayerDeath(player, enemy){
         if (player.body.bottom == enemy.body.bottom)
-            isPlayerDead = true;
+            if (livestimer == 0 && gotHit == false) {
+                if (lives == 0) 
+                    isPlayerDead = true;
+                else {
+                    lives -= 1;
+                    gotHit = true;
+                    livesText.setText('LIVES: ' + lives);
+                }
+            }
     }
 
 
@@ -465,6 +484,13 @@
             else
                 player.setGravityY(600);
             player.anims.play('still', true);
+        }
+        if (gotHit) {
+            livestimer += 0.1;
+        }
+        if (livestimer >= 10.0) {
+            gotHit = false;
+            livestimer = 0;
         }
         if(isPlayerDead){
             resetGame();
