@@ -62,6 +62,7 @@
         this.load.spritesheet('scientist-down', 'assets/scientist-walk down.png', {frameWidth: 52, frameHeight: 110});
         this.load.image('vatliquid', 'assets/DryRun/liquid.png');
         this.load.image('menu', 'assets/DryRun/menu.png');
+        this.load.image('lossScreen', 'assets/final/lose.png');
     }
 
     var ground;
@@ -77,6 +78,8 @@
     var vatscreens;
     var vatbottom;
     var menu;
+    var lossScreen;
+    var winScreen;
     //counting lives
     var lives;
     var livestimer;
@@ -199,6 +202,9 @@
         menu = this.add.image(800, 450, 'menu');
         menu.visible = true;
 
+        lossScreen = this.add.image(800, 450, 'lossScreen');
+        lossScreen.visible = false;
+
         lives = 3;
         livestimer = 0;
         gotHit = false;
@@ -233,8 +239,10 @@
     function checkPlayerDeath(player, enemy){
         if (player.body.bottom == enemy.body.bottom)
             if (livestimer == 0 && gotHit == false) {
-                if (lives == 0) 
+                if (lives == 0) {
                     isPlayerDead = true;
+                    lossScreen.visible = true;
+                }
                 else {
                     lives -= 1;
                     gotHit = true;
@@ -386,7 +394,7 @@
 
             }
             //player on new level...
-            else {
+            else {3
                 //just go straight up or down
                 if (enemy.onladder == true) {
                     enemy.body.setVelocityX(0);
@@ -472,6 +480,13 @@
                 this.physics.resume();
                 menu.visible = false;
             }
+            if (lossScreen.visible){
+
+                lossScreen.visible=false;
+                resetGame();
+
+            }
+
         }
         else
         {
@@ -493,7 +508,10 @@
             livestimer = 0;
         }
         if(isPlayerDead){
-            resetGame();
+            lossScreen = this.add.image(800, 450, 'lossScreen');
+            lossScreen.visible = true;
+
+
         }
         //animations
         vatscreens.children.each(function(screen) {
