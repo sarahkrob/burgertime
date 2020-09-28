@@ -54,7 +54,7 @@
         this.load.image('arms', 'assets/body/newarms.png');
         this.load.image('torso', 'assets/body/newtorso.png');
         this.load.image('legs', 'assets/body/newlegs2.png');
-        this.load.image('armsmonster', 'assets/Ending Monsters/armspng');
+        this.load.image('armsmonster', 'assets/Ending Monsters/arms.png');
         this.load.image('meatpile', 'assets/Ending Monsters/dubious meat pile.png');
         this.load.image('homunculus', 'assets/Ending Monsters/homunculus.png');
         this.load.image('legsmonster', 'assets/Ending Monsters/legs.png');
@@ -309,6 +309,9 @@
                 else {
                     lives -= 1;
                     gotHit = true;
+                    if (lives == 0) {
+                        livesText.visible = false;
+                    }
                 }
             }
     }
@@ -546,11 +549,9 @@
                 this.physics.resume();
                 menu.visible = false;
             }
-            if (lossScreen.visible){
-
-                lossScreen.visible=false;
+            if (lossScreen.visible) {
+                lossScreen.visible = false;
                 resetGame();
-
             }
 
         }
@@ -574,8 +575,8 @@
             livestimer = 0;
         }
         if(isPlayerDead){
-            lossScreen = this.add.image(800, 450, 'lossScreen');
-            lossScreen.visible = true;
+            //lossScreen = this.add.image(800, 450, 'lossScreen');
+            //lossScreen.visible = true;
         }
         //animations
         vatscreens.children.each(function(screen) {
