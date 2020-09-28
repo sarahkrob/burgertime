@@ -88,6 +88,8 @@
     var onladder;
     var bodyparts;
     var onBodypart;
+    var storedBodyparts;
+    var maxBodyparts;
     var vatscreens;
     var vatbottom;
     var background;
@@ -170,6 +172,12 @@
         //parts will contain variables: steppedOn, falling, hasOverlapped, squished (i.e. has been crushed by another part)
         bodyparts = this.physics.add.group();
         buildbody();
+        //Adds bodypart count for win condition
+        storedBodyparts = 0;
+        maxBodyparts = 0;
+        bodyparts.children.each(function(part){
+            maxBodyparts += 1;
+        }, this);
 
         //enemy setup
         //enemies will contain variables: dead, onladder
@@ -497,6 +505,19 @@
                 part.falling = false;
             }
         }, this);
+        //This function checks whether all of the body parts are in the vats for the win condition.
+        storedBodyparts = 0;
+        bodyparts.children.each(function(part) {
+            if(part.body.top >= 616) {
+                storedBodyparts += 1;
+            }
+        }, this);
+        if(storedBodyparts == maxBodyparts) {
+            //Wind condition
+            console.log("WIN");
+        }
+
+
         //anything needing to be done to enemies goes here
         enemies.children.each(function(enemy) {
             enemy.onladder = false;
