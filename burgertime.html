@@ -96,6 +96,9 @@
     var menu;
     var lossScreen;
     var winScreen;
+    var hasWon;
+    var wonTimer;
+    var endingMons;
     //counting lives
     var lives;
     var livestimer;
@@ -147,6 +150,12 @@
         vatscreens.create(1520, 740, 'vat');
     }
 
+    function buildEnding(){
+
+        endingMons.create(1135, 740, 'armsmonster');
+        endingMons.create(750,740,'meatpile');
+        endingMons.create(1520,740,'torsomonster');
+    }
     function create ()
     {
         this.physics.world.setBounds(400, 64, 1403, 765);
@@ -170,7 +179,7 @@
         buildladders();
         vats = this.physics.add.staticGroup();
         buildVats();
-
+        endingMons = this.physics.add.staticGroup();
         //parts will contain variables: steppedOn, falling, hasOverlapped, squished (i.e. has been crushed by another part)
         bodyparts = this.physics.add.group();
         buildbody();
@@ -268,8 +277,13 @@
         lossScreen.visible = false;
         lossScreen.setDepth(1000);
 
+        winScreen = this.add.image(950, 450, 'winScreen');
+        winScreen.visible = false;
+        winScreen.setDepth(1000);
+
         lives = 3;
         livestimer = 0;
+        wonTimer = 0;
         gotHit = false;
         //livesText = this.add.text(10, 10, 'LIVES: ' + lives, {fontSize: '35px', fill: '#FFF'});
         livesText = this.physics.add.staticSprite(950, 520, 'heart3');
@@ -422,6 +436,17 @@
         }
     }
 
+    function showCreatures(){
+        hasWon=true;
+        bodyparts.children.each(function(part) {
+            part.visible = false;
+        },this);
+        enemies.clear(true);
+
+        //endingMons = this.physics.add.staticGroup();
+        buildEnding();
+        console.log("destroyed");
+    }
     function resetGame(){
         console.log("reset");
         bodyparts.clear(true);
@@ -509,6 +534,7 @@
         onladder = false;
         onBodypart = false;
         isPlayerDead = false;
+        hasWon = false;
         //anything needing to be done to body parts goes here
         bodyparts.children.each(function(part) {
             //don't reset steppedon right away if it just got crushed or it won't fall
@@ -528,8 +554,10 @@
             }
         }, this);
         if(storedBodyparts == maxBodyparts) {
-            //Wind condition
+            //Win condition
             console.log("WIN");
+            showCreatures();
+
         }
 
 
@@ -554,7 +582,10 @@
             else
                 enemies.create(1500, 140, 'enemy').setScale(.75).setCollideWorldBounds(true);
             enemyCount += 1;
+        }else if(hasWon){
+            enemies.clear(true);
         }
+
         moveEnemies();
         moveBodyParts();
         player.setGravityY(600);
@@ -597,6 +628,10 @@
                 lossScreen.visible = false;
                 resetGame();
             }
+            if (winScreen.visible){
+                winScreen.visible = false;
+                resetGame();
+            }
         }
         else
         {
@@ -617,9 +652,11 @@
             gotHit = false;
             livestimer = 0;
         }
-        if(isPlayerDead){
-            //lossScreen = this.add.image(800, 450, 'lossScreen');
-            //lossScreen.visible = true;
+        if(hasWon){
+            wonTimer += 0.1;
+        }
+        if(wonTimer >= 8.0){
+            winScreen.visible=true;
         }
         //animations
         vatscreens.children.each(function(screen) {
