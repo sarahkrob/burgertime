@@ -209,6 +209,12 @@
             frameRate: 5,
             repeat: -1
         });
+        this.anims.create({
+            key: 'wolfstill',
+            frames: this.anims.generateFrameNumbers('wolf-down', {start: 0, end: 0}),
+            frameRate: 5,
+            repeat: -1
+        });
         enemyCount = 2;
 
         //player setup
@@ -260,6 +266,7 @@
 
         lossScreen = this.add.image(950, 450, 'lossScreen');
         lossScreen.visible = false;
+        lossScreen.setDepth(1000);
 
         lives = 3;
         livestimer = 0;
@@ -320,6 +327,7 @@
                 else {
                     lives -= 1;
                     gotHit = true;
+                    enemy.setPosition(835, 550);
                     if (lives == 0) {
                         livesText.visible = false;
                     }
@@ -450,6 +458,7 @@
             //don't move if dead
             if (enemy.dead) {
                 enemy.body.velocity.x = 0;
+                enemy.anims.play('wolfstill', true);
             }
             //has not yet started moving
             else if (enemy.body.velocity.x == 0 && enemy.onladder == false) {
