@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Monster Mash</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1900,
+        height: 900,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 600 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        this.load.image('background', 'assets/final/background.png');
+        this.load.image('ground', 'assets/final/platform6.png');
+        this.load.image('platform1', 'assets/final/platform1.png');
+        this.load.image('platform2', 'assets/final/platform2.png');
+        this.load.image('platform3', 'assets/final/platform3.png');
+        this.load.image('platform4', 'assets/final/platform4.png');
+        this.load.image('platform5', 'assets/final/platform5.png');
+        this.load.image('ladder1', 'assets/final/ladder1.png');
+        this.load.image('ladder2', 'assets/final/ladder2.png');
+        this.load.image('ladder3', 'assets/final/ladder3.png');
+        this.load.image('ladder4', 'assets/final/ladder4.png');
+        this.load.image('ladder5', 'assets/final/ladder5.png');
+        this.load.image('player', 'assets/front.png');
+        this.load.image('enemy', 'assets/werewolf.png');
+        this.load.image('head', 'assets/body/newhead.png');
+        this.load.image('arms', 'assets/body/newarms.png');
+        this.load.image('torso', 'assets/body/newtorso.png');
+        this.load.image('legs', 'assets/body/newlegs2.png');
+        this.load.image('armsmonster', 'assets/Ending Monsters/arms.png');
+        this.load.image('meatpile', 'assets/Ending Monsters/dubious meat pile.png');
+        this.load.image('homunculus', 'assets/Ending Monsters/homunculus.png');
+        this.load.image('legsmonster', 'assets/Ending Monsters/legs.png');
+        this.load.image('torsomonster', 'assets/Ending Monsters/torso&arms.png');
+        this.load.spritesheet('vat', 'assets/DryRun/vat.png', {frameWidth: 142, frameHeight: 179});
+        this.load.spritesheet('scientist-left', 'assets/scientist-walk left.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-right', 'assets/scientist-walk right.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-up', 'assets/scientist-walk up.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('scientist-down', 'assets/scientist-walk down.png', {frameWidth: 52, frameHeight: 110});
+        this.load.spritesheet('wolf-down', 'assets/werewolf-walk down.png', {frameWidth: 82, frameHeight: 120});
+        this.load.spritesheet('wolf-up', 'assets/werewolf-walk up.png', {frameWidth: 82, frameHeight: 120});
+        this.load.spritesheet('wolf-left', 'assets/werewolf-walk left.png', {frameWidth: 82, frameHeight: 120});
+        this.load.spritesheet('wolf-right', 'assets/werewolf-walk right.png', {frameWidth: 82, frameHeight: 120});
+        this.load.spritesheet('bg-sprite', 'assets/final/background.png', {frameWidth: 1900, frameHeight: 900});
+        this.load.spritesheet('heart1', 'assets/final/heart1.png', {frameWidth: 1900, frameHeight: 900});
+        this.load.spritesheet('heart2', 'assets/final/heart2.png', {frameWidth: 1900, frameHeight: 900});
+        this.load.spritesheet('heart3', 'assets/final/heart3.png', {frameWidth: 1900, frameHeight: 900});
+        this.load.image('vatliquid', 'assets/DryRun/liquid.png');
+        this.load.image('menu', 'assets/final/menu.png');
+        this.load.image('lossScreen', 'assets/final/lose.png');
+        this.load.image('winScreen', 'assets/final/win.png');
+    }
+
+    var ground;
+    var platforms;
+    var vats;
+    var enemies;
+    var ladders;
+    var player = null;
+    var isPlayerDead;
+    var onladder;
+    var bodyparts;
+    var onBodypart;
+    var storedBodyparts;
+    var maxBodyparts;
+    var vatscreens;
+    var vatbottom;
+    var background;
+    var menu;
+    var lossScreen;
+    var winScreen;
+    var hasWon;
+    var wonTimer;
+    var endingMons;
+    //counting lives
+    var lives;
+    var livestimer;
+    var gotHit;
+    var livesText;
+    var enemyCount;
+
+    function buildplatforms () {
+        platforms.create(710, 510, 'platform5');
+        platforms.create(1460, 450, 'platform4');
+        platforms.create(1560, 320, 'platform3');
+        platforms.create(710, 320, 'platform2');
+        platforms.create(1135, 190, 'platform1');
+    }
+
+    function buildladders () {
+        ladders.create(560, 241, 'ladder1');
+        ladders.create(560, 541, 'ladder2');
+        ladders.create(945, 383, 'ladder3');
+        ladders.create(1325, 449, 'ladder4');
+        ladders.create(1710, 308, 'ladder5');
+    }
+
+    function buildbody () {
+        bodyparts.create(750, 595, 'legs').name = 'legs';
+        bodyparts.create(1135, 595, 'legs').name = 'legs';
+        bodyparts.create(1520, 595, 'torso').name = 'torso';
+        bodyparts.create(750, 485, 'torso').name = 'torso';
+        bodyparts.create(1520, 295, 'arms').name = 'arms';
+        bodyparts.create(750, 165, 'head').name = 'head';
+        bodyparts.create(1135, 165, 'head').name = 'head';
+        bodyparts.create(1520, 165, 'head').name = 'head';
+    }
+
+    function buildEnemies(){
+        enemies.create(835, 550, 'enemy').setScale(.75).setCollideWorldBounds(true);
+        enemies.create(1500, 140, 'enemy').setScale(.75).setCollideWorldBounds(true);
+    }
+
+    function buildVats() {
+        vats.create(750, 740, 'vatliquid').name = 'leftvat';
+        vats.create(1135, 740, 'vatliquid').name = 'centervat';
+        vats.create(1520, 740, 'vatliquid').name = 'rightvat';
+    }
+
+    function buildVats2() {
+        vatscreens.create(1135, 740, 'vat');
+        vatscreens.create(750, 740, 'vat');
+        vatscreens.create(1520, 740, 'vat');
+    }
+
+    function buildEnding(){
+
+        endingMons.create(1135, 740, 'armsmonster');
+        endingMons.create(750,740,'meatpile');
+        endingMons.create(1520,740,'torsomonster');
+    }
+    function create ()
+    {
+        this.physics.world.setBounds(400, 64, 1403, 765);
+        //this.add.image(950, 450, 'background');
+        background = this.physics.add.staticSprite(950, 450, 'bg');
+        this.anims.create({
+            key: 'bg',
+            frames: this.anims.generateFrameNumbers('bg-sprite', {start: 0, end: 6}),
+            frameRate: 10,
+            repeat: -1
+        });
+        ground = this.physics.add.staticGroup();
+        ground.create(1135, 620, 'ground');
+        vatbottom = this.physics.add.staticGroup();
+        vatbottom.create(1135, 810, 'ground');
+        //ground.create(640, 825, 'ground').setScale(3.5).refreshBody();
+
+        platforms = this.physics.add.staticGroup();
+        buildplatforms();
+        ladders = this.physics.add.staticGroup();
+        buildladders();
+        vats = this.physics.add.staticGroup();
+        buildVats();
+        endingMons = this.physics.add.staticGroup();
+        //parts will contain variables: steppedOn, falling, hasOverlapped, squished (i.e. has been crushed by another part)
+        bodyparts = this.physics.add.group();
+        buildbody();
+        //Adds bodypart count for win condition
+        storedBodyparts = 0;
+        maxBodyparts = 0;
+        bodyparts.children.each(function(part){
+            maxBodyparts += 1;
+        }, this);
+
+        //enemy setup
+        //enemies will contain variables: dead, onladder
+        enemies = this.physics.add.group();
+        buildEnemies();
+        this.anims.create({
+            key: 'wolfleft',
+            frames: this.anims.generateFrameNumbers('wolf-left', {start: 0, end: 3}),
+            frameRate: 5,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'wolfright',
+            frames: this.anims.generateFrameNumbers('wolf-right', {start: 0, end: 3}),
+            frameRate: 5,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'wolfup',
+            frames: this.anims.generateFrameNumbers('wolf-up', {start: 0, end: 3}),
+            frameRate: 5,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'wolfdown',
+            frames: this.anims.generateFrameNumbers('wolf-down', {start: 0, end: 3}),
+            frameRate: 5,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'wolfstill',
+            frames: this.anims.generateFrameNumbers('wolf-down', {start: 0, end: 0}),
+            frameRate: 5,
+            repeat: -1
+        });
+        enemyCount = 2;
+
+        //player setup
+        player = this.physics.add.sprite(1235, 550, 'player').setScale(.75);
+        player.setBounce(0.0);
+        player.setCollideWorldBounds(true);
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('scientist-left', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('scientist-right', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('scientist-up', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('scientist-down', {start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'still',
+            frames: this.anims.generateFrameNumbers('scientist-down', {start: 0, end: 0}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        vatscreens = this.physics.add.staticGroup();
+        buildVats2();
+        this.anims.create({
+            key: 'bubble',
+            frames: this.anims.generateFrameNumbers('vat', {start: 0, end: 15}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        menu = this.add.image(950, 450, 'menu');
+        menu.visible = true;
+
+        lossScreen = this.add.image(950, 450, 'lossScreen');
+        lossScreen.visible = false;
+        lossScreen.setDepth(1000);
+
+        winScreen = this.add.image(950, 450, 'winScreen');
+        winScreen.visible = false;
+        winScreen.setDepth(1000);
+
+        lives = 3;
+        livestimer = 0;
+        wonTimer = 0;
+        gotHit = false;
+        //livesText = this.add.text(10, 10, 'LIVES: ' + lives, {fontSize: '35px', fill: '#FFF'});
+        livesText = this.physics.add.staticSprite(950, 520, 'heart3');
+        this.anims.create({
+            key: 'heart1',
+            frames: this.anims.generateFrameNumbers('heart1', {start: 0, end: 6}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'heart2',
+            frames: this.anims.generateFrameNumbers('heart2', {start: 0, end: 6}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'heart3',
+            frames: this.anims.generateFrameNumbers('heart3', {start: 0, end: 6}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        //collisions
+        this.physics.add.collider(player, ground);
+        this.physics.add.collider(player, platforms, null, checkUp);
+        this.physics.add.overlap(player, ladders, checkoverlap);
+        this.physics.add.overlap(player, bodyparts, checkPartOverlap);
+        this.physics.add.overlap(player, enemies, null, checkPlayerDeath);
+        this.physics.add.collider(enemies, ground, null, enemyFalling);
+        this.physics.add.collider(enemies, platforms, null, checkUpEnemy);
+        this.physics.add.overlap(enemies, ladders);
+        this.physics.add.collider(bodyparts, platforms, null, isFalling);
+        this.physics.add.collider(bodyparts, ground, null, fallIntoVat);
+        this.physics.add.collider(bodyparts, bodyparts, null, inVat);
+        this.physics.add.overlap(bodyparts, bodyparts, partsOverlap);
+        this.physics.add.overlap(bodyparts, enemies, hitEnemy);
+        this.physics.add.collider(bodyparts, vatbottom);
+        this.physics.add.collider(enemies, vatbottom);
+
+        cursors = this.input.keyboard.createCursorKeys();
+        this.physics.pause();
+    }
+
+    function checkoverlap() {
+        onladder = true;
+    }
+
+    function checkPlayerDeath(player, enemy){
+        if (player.body.bottom == enemy.body.bottom)
+            if (livestimer == 0 && gotHit == false) {
+                if (lives == 0) {
+                    isPlayerDead = true;
+                    lossScreen.visible = true;
+                }
+                else {
+                    lives -= 1;
+                    gotHit = true;
+                    enemy.setPosition(835, 550);
+                    if (lives == 0) {
+                        livesText.visible = false;
+                    }
+                }
+            }
+    }
+
+    function checkPartOverlap(player, part){
+        onBodypart = true;
+        part.steppedOn = true;
+        part.squished = false;
+    }
+
+    function isFalling(part){
+        if(part.steppedOn){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    function fallIntoVat(part) {
+        if(part.steppedOn && (part.body.bottom != 766)){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    function inVat(part1, part2) {
+        if (part1.body.bottom > 616 && part2.body.bottom > 616) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function checkEnemyOverlap(enemy) {
+        enemy.onladder = true;
+    }
+
+    function partsOverlap(part1, part2) {
+        //only check this once or it'll get both directions on the overlap
+        if (part1.falling && !part1.hasOverlapped && !part2.hasOverlapped) {
+            part2.steppedOn = true;
+            part2.squished = true;
+            part1.steppedOn = false;
+            part1.squished = false;
+            part1.hasOverlapped = part2.hasOverlapped = true;
+        }
+    }
+
+    function checkUp() {
+        if (onladder == true && (player.body.velocity.y < 0 || player.body.velocity.y > 0 )) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    //checks enemy collision with platforms
+    function checkUpEnemy(enemy) {
+        if ((enemy.onladder == true && (enemy.body.velocity.y < 0 || enemy.body.velocity.y > 0 ) && (enemy.body.bottom != player.body.bottom)) || enemy.dead) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    //checks enemy collision with ground
+    function enemyFalling(enemy) {
+        if (enemy.dead) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    //checks if enemy has been hit by a part
+    function hitEnemy(part, enemy) {
+        if (part.falling) {
+            if (enemy.dead == false || enemy.dead == undefined) {
+                enemyCount -= 1;
+            }
+            enemy.dead = true;
+        }
+    }
+
+    function showCreatures(){
+        hasWon=true;
+        bodyparts.children.each(function(part) {
+            part.visible = false;
+        },this);
+        enemies.clear(true);
+
+        //endingMons = this.physics.add.staticGroup();
+        buildEnding();
+        console.log("destroyed");
+    }
+    function resetGame(){
+        console.log("reset");
+        bodyparts.clear(true);
+        enemies.clear(true);
+
+        buildEnemies();
+        buildbody();
+        player.scene.scene.restart();
+    }
+
+    function moveBodyParts(){
+        bodyparts.children.each(function(part) {
+            if (part.steppedOn) {
+                part.setVelocityY(50);
+            }
+            if (part.body.velocity.y > 0) {
+                part.falling = true;
+            }
+            else {
+                part.falling = false;
+            }
+        }, this);
+    }
+
+    function moveEnemies() {
+        enemies.children.each(function(enemy) {
+            //stop falling off ladder
+            if (enemy.onladder && (enemy.body.bottom >= player.body.bottom - 5)) {
+                enemy.setGravityY(-600);
+            }
+            else {
+                enemy.setGravityY(600);
+            }
+            //don't move if dead
+            if (enemy.dead) {
+                enemy.body.velocity.x = 0;
+                enemy.anims.play('wolfstill', true);
+            }
+            //has not yet started moving
+            else if (enemy.body.velocity.x == 0 && enemy.onladder == false) {
+                if (player.x < enemy.x) {
+                    enemy.body.velocity.x = -50;
+                    enemy.anims.play('wolfleft', true);
+                }
+                else if (player.x > enemy.x) {
+                    enemy.body.velocity.x = 50;
+                    enemy.anims.play('wolfright', true);
+                }
+            }
+            //only change directions if on the same platform, otherwise keep moving
+            else if ((player.body.bottom >= enemy.body.bottom - 5) && (player.body.bottom <= enemy.body.bottom + 25)) {
+                if (player.x < enemy.x && enemy.body.velocity.x >= 0) {
+                    enemy.body.velocity.x = -50;
+                    enemy.anims.play('wolfleft', true);
+                }
+                else if (player.x > enemy.x && enemy.body.velocity.x <= 0) {
+                    enemy.body.velocity.x = 50;
+                    enemy.anims.play('wolfright', true);
+                }
+
+            }
+            //player on new level...
+            else {
+                //just go straight up or down
+                if (enemy.onladder == true) {
+                    enemy.body.setVelocityX(0);
+                    if (player.y < enemy.y) {
+                        enemy.body.velocity.y = -50;
+                        enemy.anims.play('wolfup', true);
+                    }
+                    else if (player.y > enemy.y) {
+                        enemy.body.velocity.y = 50;
+                        enemy.anims.play('wolfdown', true);
+                    }
+                    if (player.body.bottom == enemy.body.bottom) {
+                        enemy.setVelocityY(0);
+                    }
+                }
+            }
+        }, this);
+    }
+
+    function update ()
+    {
+        onladder = false;
+        onBodypart = false;
+        isPlayerDead = false;
+        hasWon = false;
+        //anything needing to be done to body parts goes here
+        bodyparts.children.each(function(part) {
+            //don't reset steppedon right away if it just got crushed or it won't fall
+            if (part.squished != undefined && part.squished == false)
+                part.steppedOn = false;
+            //this is a janky quick fix
+            if (part.body.bottom == 766) {
+                part.steppedOn = false;
+                part.falling = false;
+            }
+        }, this);
+        //This function checks whether all of the body parts are in the vats for the win condition.
+        storedBodyparts = 0;
+        bodyparts.children.each(function(part) {
+            if(part.body.top >= 616) {
+                storedBodyparts += 1;
+            }
+        }, this);
+        if(storedBodyparts == maxBodyparts) {
+            //Win condition
+            console.log("WIN");
+            showCreatures();
+
+        }
+
+
+        //anything needing to be done to enemies goes here
+        enemies.children.each(function(enemy) {
+            enemy.onladder = false;
+            this.physics.overlap(enemy, ladders, checkEnemyOverlap);
+        }, this);
+        this.physics.overlap(player, ladders, checkoverlap);
+        this.physics.overlap(player, bodyparts, checkPartOverlap);
+        this.physics.overlap(player, enemies, checkPlayerDeath);
+        if (!this.physics.overlap(bodyparts, bodyparts, partsOverlap)) {
+            //if nothing is overlapping reset all overlaps
+            bodyparts.children.each(function(part) {
+                part.hasOverlapped = false;
+            }, this);
+        }
+        if (enemyCount < 2) {
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1)
+                enemies.create(835, 550, 'enemy').setScale(.75).setCollideWorldBounds(true);
+            else
+                enemies.create(1500, 140, 'enemy').setScale(.75).setCollideWorldBounds(true);
+            enemyCount += 1;
+        }else if(hasWon){
+            enemies.clear(true);
+        }
+
+        moveEnemies();
+        moveBodyParts();
+        player.setGravityY(600);
+        if (cursors.left.isDown)
+        {
+            player.setVelocityX(-160);
+            if (onladder == true) {
+                player.setGravityY(0);
+            }
+            player.anims.play('left', true);
+        }
+        else if (cursors.right.isDown)
+        {
+            player.setVelocityX(160);
+            if (onladder == true) {
+                player.setGravityY(0);
+            }
+            player.anims.play('right', true);
+        }
+        else if (cursors.up.isDown)
+        {
+            if (onladder == true) {
+                player.setVelocityY(-160);
+                player.anims.play('up', true);
+            }
+        }
+        else if (cursors.down.isDown)
+        {
+            if (onladder == true) {
+                player.setVelocityY(160);
+                player.anims.play('down', true);
+            }
+        }
+        else if (cursors.space.isDown) {
+            if (menu.visible) {
+                this.physics.resume();
+                menu.visible = false;
+            }
+            if (lossScreen.visible) {
+                lossScreen.visible = false;
+                resetGame();
+            }
+            if (winScreen.visible){
+                winScreen.visible = false;
+                resetGame();
+            }
+        }
+        else
+        {
+            player.setVelocityX(0);
+            if (onladder) {
+                player.setAccelerationY(0);
+                player.setVelocityY(0);
+                player.setGravityY(-600);
+            }
+            else
+                player.setGravityY(600);
+            player.anims.play('still', true);
+        }
+        if (gotHit) {
+            livestimer += 0.1;
+        }
+        if (livestimer >= 10.0) {
+            gotHit = false;
+            livestimer = 0;
+        }
+        if(hasWon){
+            wonTimer += 0.1;
+        }
+        if(wonTimer >= 8.0){
+            winScreen.visible=true;
+            buildEnding();
+        }
+        //animations
+        vatscreens.children.each(function(screen) {
+            screen.anims.play('bubble', true);
+        }, this);
+        background.anims.play('bg', true);
+        livesText.anims.play('heart' + lives, true);
+    }
+
+</script>
+
+</body>
+</html>

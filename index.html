@@ -139,9 +139,9 @@
     }
 
     function buildVats() {
-        vats.create(1135, 740, 'vatliquid');
-        vats.create(750, 740, 'vatliquid');
-        vats.create(1520, 740, 'vatliquid');
+        vats.create(750, 740, 'vatliquid').name = 'leftvat';
+        vats.create(1135, 740, 'vatliquid').name = 'centervat';
+        vats.create(1520, 740, 'vatliquid').name = 'rightvat';
     }
 
     function buildVats2() {
@@ -152,8 +152,8 @@
 
     function buildEnding(){
 
-        endingMons.create(1135, 740, 'armsmonster');
-        endingMons.create(750,740,'meatpile');
+        endingMons.create(750, 740, 'armsmonster');
+        endingMons.create(1135, 740,'meatpile');
         endingMons.create(1520,740,'torsomonster');
     }
     function create ()
@@ -170,7 +170,7 @@
         ground = this.physics.add.staticGroup();
         ground.create(1135, 620, 'ground');
         vatbottom = this.physics.add.staticGroup();
-        vatbottom.create(1135, 810, 'ground', null, null, false);
+        vatbottom.create(1135, 810, 'ground');
         //ground.create(640, 825, 'ground').setScale(3.5).refreshBody();
 
         platforms = this.physics.add.staticGroup();
