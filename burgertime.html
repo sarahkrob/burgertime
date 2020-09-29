@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Super Burger Time</title>
+    <title>Monster Mash</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
@@ -101,6 +101,7 @@
     var livestimer;
     var gotHit;
     var livesText;
+    var enemyCount;
 
     function buildplatforms () {
         platforms.create(710, 510, 'platform5');
@@ -131,6 +132,7 @@
 
     function buildEnemies(){
         enemies.create(835, 550, 'enemy').setScale(.75).setCollideWorldBounds(true);
+        enemies.create(1500, 140, 'enemy').setScale(.75).setCollideWorldBounds(true);
     }
 
     function buildVats() {
@@ -207,6 +209,7 @@
             frameRate: 5,
             repeat: -1
         });
+        enemyCount = 2;
 
         //player setup
         player = this.physics.add.sprite(1235, 550, 'player').setScale(.75);
@@ -404,6 +407,9 @@
     //checks if enemy has been hit by a part
     function hitEnemy(part, enemy) {
         if (part.falling) {
+            if (enemy.dead == false || enemy.dead == undefined) {
+                enemyCount -= 1;
+            }
             enemy.dead = true;
         }
     }
@@ -469,7 +475,7 @@
 
             }
             //player on new level...
-            else {3
+            else {
                 //just go straight up or down
                 if (enemy.onladder == true) {
                     enemy.body.setVelocityX(0);
@@ -532,6 +538,14 @@
                 part.hasOverlapped = false;
             }, this);
         }
+        if (enemyCount < 2) {
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1)
+                enemies.create(835, 550, 'enemy').setScale(.75).setCollideWorldBounds(true);
+            else
+                enemies.create(1500, 140, 'enemy').setScale(.75).setCollideWorldBounds(true);
+            enemyCount += 1;
+        }
         moveEnemies();
         moveBodyParts();
         player.setGravityY(600);
@@ -574,7 +588,6 @@
                 lossScreen.visible = false;
                 resetGame();
             }
-
         }
         else
         {
